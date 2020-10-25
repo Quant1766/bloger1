@@ -27,13 +27,20 @@ SECRET_KEY = '5u6$p2wff42zh9*=*r@ma*6im*muue60&4qdxmsy=5v=6we$v7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
+TEMPLATE_DEBUG = True
 ALLOWED_HOSTS = []
 
+APPEND_SLASH = True
+
+LOCALE_PATHS = (
+    'locale',
+    # os.path.join(BASE_DIR, 'locale'),
+    )
 
 # Application definition
 
 INSTALLED_APPS = [
+    'cloudinary_storage',
     'django.contrib.admin',
     'rest_framework',
     'blogger.apps.BloggerConfig',
@@ -42,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'cloudinary',
 ]
 
 MIDDLEWARE = [
@@ -57,6 +65,8 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'bloger.urls'
 
+AUTH_USER_MODEL = 'blogger.CustomUser'
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -64,16 +74,36 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.i18n',  # this one
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
+
         },
+
     },
 ]
 
+# Redirect to home URL after login (Default redirects to /accounts/profile/)
+LOGIN_REDIRECT_URL = '/my/'
+
 WSGI_APPLICATION = 'bloger.wsgi.application'
+
+# Cache backend is optional, but recommended to speed up user agent parsing
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
+    }
+}
+
+# Name of cache backend to cache user agents. If it not specified default
+# cache alias will be used. Set to `None` to disable caching.
+USER_AGENTS_CACHE = 'default'
+
+
 
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': [
@@ -85,10 +115,24 @@ REST_FRAMEWORK = {
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
+DATABASE_URL = 'postgres://' \
+               'kzhreyumiijtgg' \
+               ':2b59a651c00371466783e4ebcb08ae308d817892c8a27ee7a727b7ec2dca112f' \
+               '@ec2-54-228-209-117.eu-west-1.compute.amazonaws.com' \
+               ':5432' \
+               '/daa5gg2p0c9ltr'
+
+DATABASES = {}
+DATABASES['default'] = dj_database_url.config(conn_max_age=600)
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR,'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'daa5gg2p0c9ltr',
+        'USER': 'kzhreyumiijtgg',
+        'PASSWORD': '2b59a651c00371466783e4ebcb08ae308d817892c8a27ee7a727b7ec2dca112f',
+        'HOST': 'ec2-54-228-209-117.eu-west-1.compute.amazonaws.com',
+        'PORT': '5432',
     }
 }
 
@@ -117,7 +161,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Kiev'
 
 USE_I18N = True
 
@@ -125,6 +169,17 @@ USE_L10N = True
 
 USE_TZ = True
 
+CLOUDINARY_URL='cloudinary://' \
+               '778293817587758' \
+               ':03A9EkiY1En6HTnPB3KLUWH-pFI@hi0g2xkag'
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'hi0g2xkag',
+    'API_KEY': '778293817587758',
+    'API_SECRET': '03A9EkiY1En6HTnPB3KLUWH-pFI',
+}
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
@@ -133,13 +188,13 @@ STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
 
 STATIC_URL = '/static/'
 
-STATIC_ROOT = os.path.join(
-    BASE_DIR,
-    'staticfiles'
-)
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'files', 'media').replace('\\','/')
+MEDIA_URL = '/media/'
 
 django_heroku.settings(locals())
