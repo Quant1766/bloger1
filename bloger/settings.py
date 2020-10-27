@@ -26,8 +26,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '5u6$p2wff42zh9*=*r@ma*6im*muue60&4qdxmsy=5v=6we$v7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-TEMPLATE_DEBUG = True
+DEBUG = False
 ALLOWED_HOSTS = []
 
 APPEND_SLASH = True
@@ -43,6 +42,7 @@ INSTALLED_APPS = [
     'cloudinary_storage',
     'django.contrib.admin',
     'rest_framework',
+    'rest_framework.authtoken',
     'blogger.apps.BloggerConfig',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -103,8 +103,6 @@ CACHES = {
 # cache alias will be used. Set to `None` to disable caching.
 USER_AGENTS_CACHE = 'default'
 
-
-
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
@@ -115,12 +113,13 @@ REST_FRAMEWORK = {
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-DATABASE_URL = 'postgres://' \
-               'kzhreyumiijtgg' \
-               ':2b59a651c00371466783e4ebcb08ae308d817892c8a27ee7a727b7ec2dca112f' \
-               '@ec2-54-228-209-117.eu-west-1.compute.amazonaws.com' \
-               ':5432' \
-               '/daa5gg2p0c9ltr'
+DATABASE_URL = \
+    'postgres://' \
+    'kzhreyumiijtgg' \
+    ':2b59a651c00371466783e4ebcb08ae308d817892c8a27ee7a727b7ec2dca112f' \
+    '@ec2-54-228-209-117.eu-west-1.compute.amazonaws.com' \
+    ':5432' \
+    '/daa5gg2p0c9ltr'
 
 DATABASES = {}
 DATABASES['default'] = dj_database_url.config(conn_max_age=600)
@@ -130,7 +129,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'daa5gg2p0c9ltr',
         'USER': 'kzhreyumiijtgg',
-        'PASSWORD': '2b59a651c00371466783e4ebcb08ae308d817892c8a27ee7a727b7ec2dca112f',
+        'PASSWORD':
+            '2b59a651c00371466783e4ebcb08ae308d817892c8a27ee7a727b7ec2dca112f',
         'HOST': 'ec2-54-228-209-117.eu-west-1.compute.amazonaws.com',
         'PORT': '5432',
     }
@@ -142,16 +142,20 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'NAME': 'django.contrib.auth.password_validation'
+                '.UserAttributeSimilarityValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'NAME': 'django.contrib.auth.password_validation'
+                '.MinimumLengthValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        'NAME': 'django.contrib.auth.password_validation'
+                '.CommonPasswordValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        'NAME': 'django.contrib.auth.password_validation'
+                '.NumericPasswordValidator',
     },
 ]
 
@@ -169,7 +173,7 @@ USE_L10N = True
 
 USE_TZ = True
 
-CLOUDINARY_URL='cloudinary://' \
+CLOUDINARY_URL = 'cloudinary://' \
                '778293817587758' \
                ':03A9EkiY1En6HTnPB3KLUWH-pFI@hi0g2xkag'
 
@@ -194,7 +198,7 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'files', 'media').replace('\\','/')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'files', 'media').replace('\\', '/')
 MEDIA_URL = '/media/'
 
 django_heroku.settings(locals())

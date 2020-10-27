@@ -1,11 +1,26 @@
+from datetime import timedelta
+from uuid import uuid4
+
+import jwt as jwt
+from django.utils.datetime_safe import datetime
+from rest_framework.authtoken.models import Token
+
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-# from django.contrib.gis.db import models as gis_models
 from rest_framework import serializers
 from django.utils.translation import gettext as _
 
-from bloger import settings
+from django.conf import settings
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from rest_framework.authtoken.models import Token
+
+
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+    if created:
+        Token.objects.create(user=instance)
 
 
 class CustomUser(AbstractUser):
@@ -34,9 +49,15 @@ class CustomUser(AbstractUser):
     )
 
     # (lon, lat)
-    # location = gis_models.PointField()
+    location = models.CharField(
+        "location coordinates",
+        max_length=20,
+        null=True,
+        default="",
+        blank=True
+    )
 
-    rating = models.ImageField(
+    rating = models.IntegerField(
         "rating",
         validators=[
             MaxValueValidator(5),
@@ -67,6 +88,21 @@ class CustomUser(AbstractUser):
     def get_show_in_search_results(self):
         return self.show_in_search_results.split(', ')
 
+    """getter and setter location"""
+    def set_location(self, x, y):
+        if x:
+            self.location = f"({x},{y})"
+        else:
+            self.location = ""
+
+    def get_location(self):
+        if self.show_in_search_results and "," in self.show_in_search_results:
+            x, y = self.show_in_search_results.split(',')
+
+            return x, y
+        else:
+            return 0, 0
+
 
 class Posts(models.Model):
     author = models.ForeignKey(
@@ -75,16 +111,16 @@ class Posts(models.Model):
         related_name="author"
     )
 
-    image = models.ImageField(upload_to="blogpost/posts", default='')
-
     title = models.CharField("Title", max_length=150)
 
-    text = models.DateTimeField(
+    text = models.TextField(
         "Post description",
         null=False,
         blank=False,
         max_length=1000
     )
+
+    is_active = models.BooleanField("Post is active", default=True)
 
     created = models.DateTimeField("Create DTime", auto_now_add=True)
     updated = models.DateTimeField("Update DTime", auto_now=True)
@@ -103,11 +139,86 @@ class PostEditHistory(models.Model):
         related_name="post"
     )
 
-    text = models.DateTimeField(
+    text = models.TextField(
         "Change description",
         null=False,
         blank=False,
-        max_length=300
+        max_length=2000
     )
 
     timestamp = models.DateTimeField("Edit DTime",  auto_now_add=True)
+
+
+class UserSerializer(serializers.ModelSerializer):
+
+    password = serializers.CharField(write_only=True)
+
+    def create(self, validated_data):
+
+        user = CustomUser.objects.create(
+            username=validated_data['username'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
+            birth_date=validated_data['birth_date'],
+            sex=validated_data['sex'],
+            bio=validated_data['bio'],
+        )
+        user.set_password(validated_data['password'])
+        user.save()
+
+        return user
+
+    class Meta:
+        model = CustomUser
+
+        fields = (
+            "id",
+            "username",
+            "password",
+            "first_name",
+            "last_name",
+            "birth_date",
+            "sex",
+            'bio'
+        )
+
+
+class PostsSerializer(serializers.ModelSerializer):
+
+    title = serializers.CharField(max_length=150)
+
+    text = serializers.CharField(
+        max_length=1000
+    )
+    is_active = serializers.BooleanField()
+
+    class Meta:
+        model = Posts
+        fields = (
+            "id",
+            "author",
+            "title",
+            "text",
+            "is_active",
+            "created",
+            "updated"
+        )
+        read_only_fields = ('author',)
+
+
+class PostEditHistorySerializer(serializers.ModelSerializer):
+
+    text = serializers.CharField(
+        max_length=2000
+    )
+
+    class Meta:
+        model = PostEditHistory
+        fields = (
+            "id",
+            "author",
+            "post",
+            "text",
+            "timestamp",
+        )
+        read_only_fields = ('author', "post")
