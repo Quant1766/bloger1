@@ -1,15 +1,9 @@
-from datetime import timedelta
-from uuid import uuid4
-
-import jwt as jwt
-from django.utils.datetime_safe import datetime
 from rest_framework.authtoken.models import Token
 
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from rest_framework import serializers
-from django.utils.translation import gettext as _
 
 from django.conf import settings
 from django.db.models.signals import post_save

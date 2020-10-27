@@ -1,9 +1,6 @@
-from django.shortcuts import render, redirect
-from rest_framework.parsers import JSONParser
-
+from django.shortcuts import redirect
 from rest_framework.permissions import (
     IsAuthenticated,
-    IsAuthenticatedOrReadOnly,
     BasePermission,
     SAFE_METHODS,
     AllowAny
@@ -12,11 +9,6 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.generics import CreateAPIView
 from rest_framework import status
-from rest_framework.renderers import (
-    JSONRenderer,
-    BrowsableAPIRenderer,
-    StaticHTMLRenderer
-)
 
 from .models import (
     CustomUser,
@@ -24,10 +16,6 @@ from .models import (
     PostEditHistorySerializer,
     PostsSerializer, Posts, PostEditHistory
 )
-
-import requests
-from bs4 import BeautifulSoup
-import json
 
 
 def validate_bool_request(value):
