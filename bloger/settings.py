@@ -26,7 +26,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '5u6$p2wff42zh9*=*r@ma*6im*muue60&4qdxmsy=5v=6we$v7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 ALLOWED_HOSTS = ["*", '127.0.0.1', '.herokuapp.com']
 
 APPEND_SLASH = True
@@ -35,7 +35,6 @@ APPEND_SLASH = True
 # Application definition
 
 INSTALLED_APPS = [
-    'cloudinary_storage',
     'django.contrib.admin',
     'rest_framework',
     'rest_framework.authtoken',
@@ -45,7 +44,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'cloudinary',
 ]
 
 MIDDLEWARE = [
@@ -57,6 +55,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+
 ]
 
 ROOT_URLCONF = 'bloger.urls'
@@ -169,32 +168,11 @@ USE_L10N = True
 
 USE_TZ = True
 
-CLOUDINARY_URL = 'cloudinary://' \
-               '778293817587758' \
-               ':03A9EkiY1En6HTnPB3KLUWH-pFI@hi0g2xkag'
-
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'hi0g2xkag',
-    'API_KEY': '778293817587758',
-    'API_SECRET': '03A9EkiY1En6HTnPB3KLUWH-pFI',
-}
-
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
-STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
-
 STATIC_URL = '/static/'
-
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'static'),
-)
-
-MEDIA_ROOT = os.path.join(BASE_DIR, 'files', 'media').replace('\\', '/')
-MEDIA_URL = '/media/'
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
+WHITENOISE_USE_FINDERS = True
 
 django_heroku.settings(locals())
